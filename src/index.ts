@@ -9,27 +9,39 @@ dotenv.config();
 const app: Express = express();
 const port = process.env.PORT || 3000;
 
-app.get("/", (req: Request, res: Response) => {
-    res.send("Movie pdf generator, for movies use /movies and for specyfic movie use /movies/:movie_id");
-});
-
 app.get("/movies", async (req: Request, res: Response) => {
-    const moviesListData = await TmbdApi.fetchMoviesList(moviesListNames.POPULAR);
-    await PdfManager.createMoviesList(moviesListData, () => {
+    const { data, status } = await TmbdApi.fetchMoviesList(moviesListNames.POPULAR);
+
+    if (status !== 200) {
+        res.status(404).send("Error 404 - cannot find");
+        return;
+    }
+
+    await PdfManager.createMoviesList(data, () => {
         const pdfFile = PdfManager.getMoviesList();
         res.contentType("application/pdf");
-        res.send(pdfFile);
+        res.status(200).send(pdfFile);
     });
 });
 
 app.get('/movies/:movieId', async (req: Request, res: Response) => {
     const { movieId } = req.params;
-    const moviesData = await TmbdApi.fetchMovie(movieId);
-    await PdfManager.createMoviePage(moviesData, () => {
-        const pdfFile = PdfManager.getMoviePage(movieId);
+    const { data, status } = await TmbdApi.fetchMovie(movieId);
+
+    if (status !== 200) {
+        res.status(404).send("Error 404 - movie does not exist");
+        return;
+    }
+
+    await PdfManager.createMoviePage(data, () => {
+        const pdfFile = PdfManager.getMoviePage(data.id);
         res.contentType("application/pdf");
-        res.send(pdfFile);
+        res.status(200).send(pdfFile);
     });
+});
+
+app.get('*', (req, res) => {
+    res.status(404).send("Error 404 - cannot find");
 });
 
 app.listen(port, () => {

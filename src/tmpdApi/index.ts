@@ -6,6 +6,16 @@ dotenv.config();
 
 const fetch = require('node-fetch');
 
+interface FetchMovieResponse {
+    data: Movie;
+    status: number;
+}
+
+interface FetchMoviesListResponse {
+    data: Movie[];
+    status: number;
+}
+
 export class TmbdApi {
     private static getApiUrl = (param?: string): string => {
         const extraParam = param ? `/${param}` : "";
@@ -16,15 +26,16 @@ export class TmbdApi {
         return `https://image.tmdb.org/t/p/w500/${posterFileName}`
     }
 
-    public static fetchMoviesList = async (listType: string): Promise<Movie[]> => {
+    public static fetchMoviesList = async (listType: string): Promise<FetchMoviesListResponse> => {
         const response = await fetch(this.getApiUrl(listType), { method: httpMethodsNames.GET });
         const data = await response.json();
 
-        return data.results;
+        return { data: data.results, status: response.status };
     }
 
-    public static fetchMovie = async (movieId: string): Promise<Movie> => {
+    public static fetchMovie = async (movieId: string): Promise<FetchMovieResponse> => {
         const response = await fetch(this.getApiUrl(movieId), { method: httpMethodsNames.GET });
-        return await response.json();
+        const data = await response.json();
+        return { data, status: response.status };
     }
 }

@@ -15,11 +15,11 @@ export interface Movie {
 
 export class PdfManager {
     private static getFilePath = (fileName: string) => {
-        return path.join(__dirname, `../public/${fileName}.pdf`);
+        return path.join(__dirname, `../../public/${fileName}.pdf`);
     }
 
     private static getImagePath = (fileName: string) => {
-        return path.join(__dirname, `../public/img/${fileName}`);
+        return path.join(__dirname, `../../public/${fileName}`);
     }
 
     private static downloadImage = async (fileName: string, callback: () => void) => {
@@ -48,11 +48,11 @@ export class PdfManager {
 
     public static async createMoviePage(movie: Movie, callback: () => void) {
         const newDoc = new PDFDocument;
-        const posterName = movie.poster_path.replace('/', '');
+        const posterName = movie?.poster_path.replace('/', '');
 
-        newDoc.text(movie.title);
-        newDoc.text(movie.release_date);
-        newDoc.text(movie.vote_average);
+        newDoc.text(movie?.title);
+        newDoc.text(movie?.release_date);
+        newDoc.text(movie?.vote_average);
         await this.downloadImage(posterName, () => {
             newDoc.image(this.getImagePath(posterName), 100, 200, { width: 100 })
 
@@ -68,7 +68,7 @@ export class PdfManager {
         return fs.readFileSync(this.getFilePath("movies_list"));
     }
 
-    public static getMoviePage(movieId: string) {
+    public static getMoviePage(movieId: number) {
         return fs.readFileSync(this.getFilePath(`movie_${movieId}`));
     }
 }
