@@ -1,0 +1,1 @@
+use "ts-node src/index.ts" to run the server
