@@ -8,18 +8,26 @@ export default function Home() {
   const [exchangeValue, setExchangeValue] = useState<number>()
 
   const fetchExchangeValue = async () => {
-    const response = await fetch(process.env.API_URL || "", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ value: inputValue }),
-    });
+    if (!inputValue) {
+      return
+    }
 
-    const data = await response.json();
+    try {
+      const response = await fetch(process.env.API_URL || "", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ value: inputValue }),
+      });
 
-    if (data.exchangeValue) {
-      setExchangeValue(data.exchangeValue);
+      const data = await response.json();
+
+      if (data.exchangeValue) {
+        setExchangeValue(data.exchangeValue);
+      }
+    } catch (e) {
+      console.log(e)
     }
   }
 
